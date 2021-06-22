@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "gd.h"
+#include "gd.hpp"
 
 int main() {
     double a = get_double(0, 100);

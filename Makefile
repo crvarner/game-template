@@ -40,7 +40,7 @@ test: $(TEST_TARGET)
 
 # main executable
 $(TARGET): $(OBJECTS)
-	-mkdir $(BIN_DIR)
+	mkdir -p $(BIN_DIR)
 	$(CC) $(CFLAGS) $(LIB) $^ -o $@
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.$(SRC_EXT) $(BUILD_DIR)
@@ -54,7 +54,7 @@ $(BUILD_DIR)/%.o: $(TEST_DIR)/%.$(SRC_EXT) $(BUILD_DIR)
 	$(CC) $(CFLAGS) $(DEPFLAGS) -c $< -o $@
 
 $(BUILD_DIR):
-	-mkdir $(BUILD_DIR)
+	mkdir -p $(BUILD_DIR)
 
 clean:
 	-rm -Rf $(BUILD_DIR) $(BIN_DIR)
