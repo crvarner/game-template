@@ -1,3 +1,3 @@
-# 3dgame
+# game-template
 
-TODO: add developer setup instructions
+This repo can be cloned as a baseline for developing cross-platform C++ games
