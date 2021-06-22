@@ -4,8 +4,9 @@ SRC_DIR := src
 BUILD_DIR := build
 INCLUDE_DIR := include
 TEST_DIR := test
-TARGET := bin/game
-TEST_TARGET := $(TARGET)_test
+BIN_DIR := bin
+TARGET := $(BIN_DIR)/application
+TEST_TARGET := $(BIN_DIR)/application_test
 SRC_EXT := cpp
 
 CC := g++
@@ -39,17 +40,21 @@ test: $(TEST_TARGET)
 
 # main executable
 $(TARGET): $(OBJECTS)
+	-mkdir $(BIN_DIR)
 	$(CC) $(CFLAGS) $(LIB) $^ -o $@
 
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.$(SRC_EXT)
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.$(SRC_EXT) $(BUILD_DIR)
 	$(CC) $(CFLAGS) $(DEPFLAGS) -c $< -o $@
 
 # test executable
 $(TEST_TARGET): $(TEST_OBJECTS)
 	$(CC) $(CFLAGS) $(LIB) $^ -o $@
 
-$(BUILD_DIR)/%.o: $(TEST_DIR)/%.$(SRC_EXT)
+$(BUILD_DIR)/%.o: $(TEST_DIR)/%.$(SRC_EXT) $(BUILD_DIR)
 	$(CC) $(CFLAGS) $(DEPFLAGS) -c $< -o $@
 
+$(BUILD_DIR):
+	-mkdir $(BUILD_DIR)
+
 clean:
-	-rm $(MAIN_OBJECT) $(TEST_OBJECTS) $(DEPS) $(TEST_DIR_DEPS) $(TARGET) $(TEST_TARGET)
+	-rm -Rf $(BUILD_DIR) $(BIN_DIR)
