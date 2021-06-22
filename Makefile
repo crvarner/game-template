@@ -9,7 +9,7 @@ TARGET := $(BIN_DIR)/application
 TEST_TARGET := $(BIN_DIR)/application_test
 SRC_EXT := cpp
 
-CC := g++
+CC := clang++
 LIB := -L/usr/local/lib -framework OpenGL -lglfw
 CFLAGS := -Wall -Werror -I$(INCLUDE_DIR)
 DEPFLAGS := -MMD -MP
