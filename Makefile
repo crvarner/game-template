@@ -10,7 +10,7 @@ TEST_TARGET := $(BIN_DIR)/application_test
 SRC_EXT := cpp
 
 CC := clang++
-LIB := -L/usr/local/lib -framework OpenGL -lglfw
+LIB := -L/usr/local/lib -framework OpenGL -lSDL2
 CFLAGS := -Wall -Werror -I$(INCLUDE_DIR)
 DEPFLAGS := -MMD -MP
 .DEFAULT_GOAL := all
@@ -41,20 +41,20 @@ test: $(TEST_TARGET)
 # main executable
 $(TARGET): $(OBJECTS)
 	mkdir -p $(BIN_DIR)
-	$(CC) $(CFLAGS) $(LIB) $^ -o $@
+	$(CC) $(CFLAGS) $(LIB) $(OBJECTS) -o $@
 
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.$(SRC_EXT) $(BUILD_DIR)
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.$(SRC_EXT)
+	mkdir -p $(BUILD_DIR)
 	$(CC) $(CFLAGS) $(DEPFLAGS) -c $< -o $@
 
 # test executable
 $(TEST_TARGET): $(TEST_OBJECTS)
+	mkdir -p $(BIN_DIR)
 	$(CC) $(CFLAGS) $(LIB) $^ -o $@
 
-$(BUILD_DIR)/%.o: $(TEST_DIR)/%.$(SRC_EXT) $(BUILD_DIR)
-	$(CC) $(CFLAGS) $(DEPFLAGS) -c $< -o $@
-
-$(BUILD_DIR):
+$(BUILD_DIR)/%.o: $(TEST_DIR)/%.$(SRC_EXT)
 	mkdir -p $(BUILD_DIR)
+	$(CC) $(CFLAGS) $(DEPFLAGS) -c $< -o $@
 
 clean:
 	-rm -Rf $(BUILD_DIR) $(BIN_DIR)

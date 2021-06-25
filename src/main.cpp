@@ -1,51 +1,43 @@
 #include <stdio.h>
 
-#define GL_SILENCE_DEPRECATION
-#include <GLFW/glfw3.h>
+// #define GL_SILENCE_DEPRECATION
+#include <SDL2/SDL.h>
 
 #include "gd.hpp"
 
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
-}
-
-void error_callback(int error, const char* description)
-{
-    printf("Error: %s\n", description);
-}
-
 int main() {
-    if (!glfwInit()) {
-        printf("init failed");
-        return -1;
-    }
-    glfwSetErrorCallback(error_callback);
-
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    GLFWwindow* window = glfwCreateWindow(640, 480, "Title", NULL, NULL);
-    if (!window)
-    {
-        glfwTerminate();
-        return -1;
+    SDL_Window* window = NULL;
+    if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
+        fprintf(stderr, "could not initialize SDL2: %s\n", SDL_GetError());
+        return 1;
     }
 
-    glfwMakeContextCurrent(window);
-
-    glfwSetKeyCallback(window, key_callback);
-    while (!glfwWindowShouldClose(window)) {
-        /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        /* Swap front and back buffers */
-        glfwSwapBuffers(window);
-
-        /* Poll for and process events */
-        glfwPollEvents();
+    window = SDL_CreateWindow(
+        "Title",
+        SDL_WINDOWPOS_UNDEFINED,
+        SDL_WINDOWPOS_UNDEFINED,
+        640,
+        480,
+        SDL_WINDOW_ALLOW_HIGHDPI
+    );
+    if (window == NULL) {
+        fprintf(stderr, "could not create window: %s\n", SDL_GetError());
+        return 1;
     }
 
-    glfwDestroyWindow(window);
-    glfwTerminate();
+    SDL_Event event;
+    bool running = true;
+    while (running) {
+        while (SDL_PollEvent(&event)) {
+            switch (event.type) {
+            case SDL_QUIT:
+                running = false;
+                break;
+            }
+        }
+    }
+
+    SDL_DestroyWindow(window);
+    SDL_Quit();
     return 0;
 }
