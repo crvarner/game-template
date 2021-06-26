@@ -3,7 +3,7 @@ project(GameTemplate    VERSION 1.0.0
                         LANGUAGES CXX)
 
 file(GLOB_RECURSE SOURCES src/*)
-add_executable(GameTemplate ${SOURCES})
+add_executable(GameTemplate app/main.cpp ${SOURCES})
 
 # find packages
 find_package(SDL2 REQUIRED)
@@ -16,7 +16,7 @@ set(LIBRARIES
 
 # include dirs
 set(INCLUDE_DIRS
-    include
+    include/project
     ${SDL2_INCLUDE_DIRS}
     ${OPENGL_INCLUDE_DIR})
 
