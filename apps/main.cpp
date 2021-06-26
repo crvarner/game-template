@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 // #define GL_SILENCE_DEPRECATION
-#include <SDL2/SDL.h>
+#include "SDL.h"
 
 #include "gd.hpp"
 
