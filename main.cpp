@@ -1,9 +1,8 @@
-#include <stdio.h>
+#include <iostream>
 
-// #define GL_SILENCE_DEPRECATION
 #include "SDL.h"
 
-#include "gd.hpp"
+#include "F/f.hpp"
 
 int main() {
     SDL_Window* window = NULL;
@@ -16,7 +15,7 @@ int main() {
         "Title",
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
-        640,
+        add(600,40),
         480,
         SDL_WINDOW_ALLOW_HIGHDPI
     );
