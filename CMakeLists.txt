@@ -19,8 +19,9 @@ target_link_libraries(GameTemplate
     PRIVATE SDL2)
 
 #installation
+set_target_properties(${PROJECT_NAME} PROPERTIES INSTALL_RPATH "./")
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
-install(TARGETS SDL2 DESTINATION lib)
+install(TARGETS SDL2 DESTINATION bin)
 
 # CPack common settings
 include(InstallRequiredSystemLibraries)
