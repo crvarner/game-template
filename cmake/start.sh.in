@@ -1,0 +1,5 @@
+#! /bin/sh
+BUNDLE="`echo "$0" | sed -e 's/\/Contents\/MacOS\/${PROJECT_NAME}//'`"
+RESOURCES="$BUNDLE/Contents/Resources"
+cd $RESOURCES/bin
+exec ./${PROJECT_NAME}

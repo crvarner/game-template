@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.20)
 project(GameTemplate    VERSION 1.0.0
                         LANGUAGES CXX)
 
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(MACOS TRUE)
+endif()
+
 file(GLOB_RECURSE SOURCES src/*)
 add_executable(${PROJECT_NAME} app/main.cpp ${SOURCES})
 
@@ -16,12 +20,28 @@ target_include_directories(GameTemplate
 # linker
 target_link_libraries(GameTemplate
     PRIVATE ${SDL2_LIBRARIES})
- 
+
+#installation
+install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
+
 # CPack stuff
 include(InstallRequiredSystemLibraries)
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt")
 set(CPACK_PACKAGE_VERSION_MAJOR ${GameTemplate_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${GameTemplate_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${GameTemplate_VERSION_PATCH})
+
+if(APPLE)
+    set(STARTUP_SCRIPT "${CMAKE_BINARY_DIR}/start.sh")
+    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/start.sh.in" "${STARTUP_SCRIPT}")
+
+    set(CPACK_GENERATOR "Bundle")
+    set(CPACK_BUNDLE_NAME ${PROJECT_NAME})
+    set(CPACK_BUNDLE_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Info.plist")
+    set(CPACK_BUNDLE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Info.plist")
+    set(CPACK_BUNDLE_STARTUP_COMMAND "${STARTUP_SCRIPT}")
+endif()
+
 include(CPack)
 
 
