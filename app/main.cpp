@@ -4,6 +4,7 @@
 
 #include "F/f.hpp"
 
+
 int main() {
     SDL_Window* window = NULL;
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
