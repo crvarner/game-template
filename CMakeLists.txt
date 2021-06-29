@@ -2,11 +2,16 @@ cmake_minimum_required(VERSION 3.20)
 project(GameTemplate    VERSION 1.0.0
                         LANGUAGES CXX)
 
+# define common SOURCES variable as all files within src
 file(GLOB_RECURSE SOURCES src/*)
-add_executable(${PROJECT_NAME} app/main.cpp ${SOURCES})
+
+# add main executable (entry point + SOURCES)
+# in windows, WIN32 property adds /SUBSYSTEM:WINDOWS compiler flag 
+# required for GUI applications
+add_executable(${PROJECT_NAME} WIN32 app/main.cpp ${SOURCES})
 
 # SDL (shared only)
-set(SDL_STATIC OFF CACHE BOOL "build SDL static lib")
+set(SDL_STATIC OFF CACHE BOOL "build SDL static lib" FORCE)
 add_subdirectory(external/SDL EXCLUDE_FROM_ALL)
 
 # includes
@@ -16,7 +21,14 @@ target_include_directories(GameTemplate
 
 # linker
 target_link_libraries(GameTemplate
+    PRIVATE SDL2main
     PRIVATE SDL2)
+
+if(WIN32)
+    # for windows, set SDL(d).dll output dir to the same as executable
+    set_target_properties(SDL2 PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+endif()
 
 #installation
 set_target_properties(${PROJECT_NAME} PROPERTIES INSTALL_RPATH "./")
@@ -43,6 +55,12 @@ if(APPLE)
     set(CPACK_BUNDLE_PLIST "${INFO_PLIST}")
     set(CPACK_BUNDLE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/cmake/AppIcon.icns")
     set(CPACK_BUNDLE_STARTUP_COMMAND "${STARTUP_SCRIPT}")
+endif()
+
+if(WIN32)
+    set(CPACK_GENERATOR "NSIS")
+    set(CPACK_NSIS_DISPLAY_NAME "${PROJECT_NAME}")
+    set(CPACK_PACKAGE_EXECUTABLES "${PROJECT_NAME}" "${PROJECT_NAME}")
 endif()
 
 include(CPack)
