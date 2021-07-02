@@ -1,43 +1,33 @@
 #include <iostream>
 
-#include "SDL.h"
+#include "Game.hpp"
 
-#include "F/f.hpp"
+Game *game = nullptr;
 
+const float TICK_LENGTH = 1.0/60.0;
 
 int main() {
-    SDL_Window* window = NULL;
-    if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
-        fprintf(stderr, "could not initialize SDL2: %s\n", SDL_GetError());
-        return 1;
-    }
+    game = new Game();
+    game->init("Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 640, false);
 
-    window = SDL_CreateWindow(
-        "Title",
-        SDL_WINDOWPOS_UNDEFINED,
-        SDL_WINDOWPOS_UNDEFINED,
-        add(600,40),
-        480,
-        SDL_WINDOW_ALLOW_HIGHDPI
-    );
-    if (window == NULL) {
-        fprintf(stderr, "could not create window: %s\n", SDL_GetError());
-        return 1;
-    }
+    uint ts, prev;
+    float dt, lag;
+    while (game->running())
+    {
+        ts = SDL_GetTicks();
+        if (!prev) prev = ts;
+        dt = (ts - prev)/1000.0f;
+        prev = ts;
+        lag += dt;
 
-    SDL_Event event;
-    bool running = true;
-    while (running) {
-        while (SDL_PollEvent(&event)) {
-            switch (event.type) {
-            case SDL_QUIT:
-                running = false;
-                break;
-            }
+        game->handleEvents();
+        while (lag >= TICK_LENGTH) {
+            game->update();
+            lag -= TICK_LENGTH;
         }
+
+        game->render(lag);
     }
 
-    SDL_DestroyWindow(window);
-    SDL_Quit();
     return 0;
 }

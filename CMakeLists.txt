@@ -13,16 +13,19 @@ add_executable(${PROJECT_NAME} WIN32 app/main.cpp ${SOURCES})
 # SDL (shared only)
 set(SDL_STATIC OFF CACHE BOOL "build SDL static lib" FORCE)
 add_subdirectory(external/SDL EXCLUDE_FROM_ALL)
+add_subdirectory(external/SDL_image EXCLUDE_FROM_ALL)
 
 # includes
 target_include_directories(GameTemplate
     PRIVATE external/SDL/include
+    PRIVATE external/SDL_image
     PRIVATE src)
 
 # linker
 target_link_libraries(GameTemplate
     PRIVATE SDL2main
-    PRIVATE SDL2)
+    PRIVATE SDL2
+    PRIVATE SDL2_image)
 
 if(WIN32)
     # for windows, set SDL(d).dll output dir to the same as executable
@@ -30,10 +33,18 @@ if(WIN32)
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 endif()
 
+# copy asset dir to build dir
+add_custom_target(copy_assets
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    "${CMAKE_CURRENT_SOURCE_DIR}/assets"
+    "${CMAKE_BINARY_DIR}/assets")
+add_dependencies(${PROJECT_NAME} copy_assets)
+
 #installation
+set(SHARED_LIBS SDL2 SDL2_image jpeg png zlib)
 set_target_properties(${PROJECT_NAME} PROPERTIES INSTALL_RPATH "./")
-install(TARGETS ${PROJECT_NAME} DESTINATION bin)
-install(TARGETS SDL2 DESTINATION bin)
+install(TARGETS ${PROJECT_NAME} ${SHARED_LIBS} DESTINATION .)
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/assets" DESTINATION .)
 
 # CPack common settings
 include(InstallRequiredSystemLibraries)
