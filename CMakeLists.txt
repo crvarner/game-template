@@ -85,8 +85,8 @@ if(WIN32)
 else()
     add_subdirectory(external/SDL_image EXCLUDE_FROM_ALL)
     target_include_directories(${PROJECT_NAME} PRIVATE external/SDL_image)
-    target_link_libraries(${PROJECT_NAME} PRIVATE SDL_image)
-    list(APPEND BINARIES SDL_image png zlib jpeg)
+    target_link_libraries(${PROJECT_NAME} PRIVATE SDL2_image)
+    list(APPEND BINARIES SDL2_image png zlib jpeg)
 endif()
 
 
