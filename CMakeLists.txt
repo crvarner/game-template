@@ -2,36 +2,97 @@ cmake_minimum_required(VERSION 3.20)
 project(GameTemplate    VERSION 1.0.0
                         LANGUAGES CXX)
 
-# define common SOURCES variable as all files within src
-file(GLOB_RECURSE SOURCES src/*)
 
 # add main executable (entry point + SOURCES)
 # in windows, WIN32 property adds /SUBSYSTEM:WINDOWS compiler flag 
 # required for GUI applications
+file(GLOB_RECURSE SOURCES src/*)
 add_executable(${PROJECT_NAME} WIN32 app/main.cpp ${SOURCES})
+target_include_directories(${PROJECT_NAME} PRIVATE src)
 
-# SDL (shared only)
+# initialize lists of binaries to be installed
+set(BINARIES ${PROJECT_NAME})
+set(PREBUILT "")
+
+
+
+
+# SDL (shared)
 set(SDL_STATIC OFF CACHE BOOL "build SDL static lib" FORCE)
+set(SDL_CMAKE_DEBUG_POSTFIX "" CACHE STRING "Debug DLL suffix" FORCE)
 add_subdirectory(external/SDL EXCLUDE_FROM_ALL)
-add_subdirectory(external/SDL_image EXCLUDE_FROM_ALL)
-
-# includes
-target_include_directories(GameTemplate
-    PRIVATE external/SDL/include
-    PRIVATE external/SDL_image
-    PRIVATE src)
-
-# linker
-target_link_libraries(GameTemplate
-    PRIVATE SDL2main
-    PRIVATE SDL2
-    PRIVATE SDL2_image)
-
+target_include_directories(${PROJECT_NAME} PRIVATE external/SDL/include)
+target_link_libraries(${PROJECT_NAME} PRIVATE SDL2main SDL2)
 if(WIN32)
-    # for windows, set SDL(d).dll output dir to the same as executable
     set_target_properties(SDL2 PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 endif()
+list(APPEND BINARIES SDL2)
+
+
+
+
+
+
+
+
+if(WIN32)
+    # SDL_image build is broken for win32 so use precompiled binaries instead
+    set(SDL_IMAGE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/SDL_image-VC")
+    set(SDL_IMAGE_LIB_DIR "${SDL_IMAGE_DIR}/lib/x64")
+
+    add_library(SDL_image SHARED IMPORTED)
+    set_target_properties(SDL_image PROPERTIES
+        IMPORTED_LOCATION "${SDL_IMAGE_LIB_DIR}/SDL2_image.dll"
+        IMPORTED_IMPLIB "${SDL_IMAGE_LIB_DIR}/SDL2_image.lib")
+
+    add_library(png SHARED IMPORTED)
+    set_property(TARGET png PROPERTY IMPORTED_LOCATION "${SDL_IMAGE_LIB_DIR}/libpng16-16.dll")
+    
+    add_library(zlib SHARED IMPORTED)
+    set_property(TARGET zlib PROPERTY IMPORTED_LOCATION "${SDL_IMAGE_LIB_DIR}/zlib1.dll")
+
+    add_library(jpeg SHARED IMPORTED)
+    set_property(TARGET jpeg PROPERTY IMPORTED_LOCATION "${SDL_IMAGE_LIB_DIR}/jpeg-9.dll")
+
+    target_include_directories(${PROJECT_NAME} PRIVATE "${SDL_IMAGE_DIR}/include")
+    target_link_libraries(${PROJECT_NAME} PRIVATE SDL_image)
+
+    file(GLOB SDL_IMAGE_DLLS "${SDL_IMAGE_LIB_DIR}/*.dll")
+    list(APPEND PREBUILT ${SDL_IMAGE_DLLS})
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${SDL_IMAGE_DLLS}
+        "${CMAKE_BINARY_DIR}/$<CONFIG>")
+    
+    # set(SDL_IMAGE_BASE "${CMAKE_CURRENT_SOURCE_DIR}/external/SDL_image-VC")
+    # set(SDL_IMAGE_INCLUDE_DIRS "${SDL_IMAGE_BASE}/include")
+    # set(SDL_IMAGE_LIBRARY_DIRS "${SDL_IMAGE_BASE}/lib/x64")
+    # file(GLOB SDL_IMAGE_DLLS "SDL_IMAGE_LIBRARY_DIRS/*.dll")
+
+    # target_include_directories(${PROJECT_NAME} PRIVATE "${SDL_IMAGE_INCLUDE_DIRS}")
+    # target_link_directories(${PROJECT_NAME} PRIVATE "${SDL_IMAGE_LIBRARY_DIRS}")
+    # target_link_libraries(${PROJECT_NAME} PRIVATE "SDL2_image.lib")    
+
+    # set(SDL_IMAGE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/SDL_image-VC")
+    # target_include_directories(${PROJECT_NAME} PRIVATE "${SDL_IMAGE_DIR}/include")
+    # target_link_directories(${PROJECT_NAME} PRIVATE "${SDL_IMAGE_DIR}/lib/x64")
+    # target_link_libraries(${PROJECT_NAME} PRIVATE "SDL2_image.lib")
+    # add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    #     COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    #     "${SDL_IMAGE_DIR}/lib/x64/*.dll"
+    #     "${CMAKE_BINARY_DIR}")
+else()
+    add_subdirectory(external/SDL_image EXCLUDE_FROM_ALL)
+    target_include_directories(${PROJECT_NAME} PRIVATE external/SDL_image)
+    target_link_libraries(${PROJECT_NAME} PRIVATE SDL_image)
+    list(APPEND BINARIES SDL_image png zlib jpeg)
+endif()
+
+
+
+
+
 
 # copy asset dir to build dir
 add_custom_target(copy_assets
@@ -40,10 +101,14 @@ add_custom_target(copy_assets
     "${CMAKE_BINARY_DIR}/assets")
 add_dependencies(${PROJECT_NAME} copy_assets)
 
+
+
+
+
 #installation
-set(SHARED_LIBS SDL2 SDL2_image jpeg png zlib)
 set_target_properties(${PROJECT_NAME} PROPERTIES INSTALL_RPATH "./")
-install(TARGETS ${PROJECT_NAME} ${SHARED_LIBS} DESTINATION .)
+install(TARGETS ${BINARIES} DESTINATION .)
+install(FILES ${PREBUILT} DESTINATION .)
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/assets" DESTINATION .)
 
 # CPack common settings

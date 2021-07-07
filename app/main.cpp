@@ -6,12 +6,14 @@ Game *game = nullptr;
 
 const float TICK_LENGTH = 1.0/60.0;
 
-int main() {
+int main(int argc, char** argv) {
     game = new Game();
     game->init("Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 640, false);
 
-    uint ts, prev;
-    float dt, lag;
+    std::cout << "HERE" << std::endl;
+
+    unsigned int ts, prev = 0;
+    float dt, lag = 0;
     while (game->running())
     {
         ts = SDL_GetTicks();
