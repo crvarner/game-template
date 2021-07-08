@@ -31,8 +31,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE external/SDL_image)
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL2_image)
 if(WIN32)
     target_compile_definitions(SDL2_image
-        PRIVATE "DLL_EXPORT"
-        PRIVATE "LOAD_PNG")
+        PRIVATE "DLL_EXPORT")
 endif()
 list(APPEND BINARIES SDL2_image png zlib)
 
