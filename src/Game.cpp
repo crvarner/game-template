@@ -1,4 +1,7 @@
 #include <iostream>
+
+#include "SDL_image.h"
+
 #include "Game.hpp"
 #include "TextureManager.hpp"
 #include "Map.hpp"
@@ -19,19 +22,28 @@ void Game::init(const char* title, int x, int y, int w, int h, bool fullscreen)
         std::cout << "Subsystem Initializing!..." << std::endl;
 
         window = SDL_CreateWindow(title, x, y, w, h, flags);
-        if (window) {
-            std::cout << "Window created!" << std::endl;
+        if (!window) {
+            std::cout << "Window not created!" << std::endl;
+            return;
         }
 
         Game::renderer = SDL_CreateRenderer(window, -1, 0);
-        if (Game::renderer) {
-            SDL_SetRenderDrawColor(Game::renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
-            std::cout << "Renderer created!" << std::endl;
+        if (!Game::renderer) {
+            std::cout << "Renderer not created!" << std::endl;
+            return;
+        }
+        SDL_SetRenderDrawColor(Game::renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
+
+        int IMG_TYPES = IMG_INIT_PNG;
+        if (IMG_Init(IMG_TYPES) != IMG_TYPES) {
+            std::cout << "IMG_Init failed" << std::endl;
+            return;
         }
 
         isRunning = true;
     }
 
+    count = 0;
     srcRect.x = srcRect.y = 0;
     srcRect.w = srcRect.h = 64;
     playerTex = TextureManager::LoadTexture("assets/player.png");
@@ -55,8 +67,7 @@ void Game::handleEvents()
 
 void Game::update()
 {
-    count++;
-    dstRect.x = dstRect.y = count;
+    dstRect.x = dstRect.y = count++;
     dstRect.w = dstRect.h = 64;
 }
 
