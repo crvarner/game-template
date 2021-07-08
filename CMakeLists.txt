@@ -3,6 +3,18 @@ project(GameTemplate    VERSION 1.0.0
                         LANGUAGES CXX)
 
 
+# download all submodules if missing
+find_package(Git QUIET)
+if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
+    execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                    RESULT_VARIABLE GIT_SUBMOD_RESULT)
+    if(NOT GIT_SUBMOD_RESULT EQUAL 0)
+        message(FATAL_ERROR "git submodule update --init failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
+    endif()
+endif()
+
+
 # add main executable (entry point + SOURCES)
 # in windows, WIN32 property adds /SUBSYSTEM:WINDOWS compiler flag 
 # required for GUI applications
@@ -11,7 +23,7 @@ add_executable(${PROJECT_NAME} WIN32 app/main.cpp ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 
 
-# initialize empty list of binaries to be installed
+# initialize list of binaries to be installed
 set(BINARIES ${PROJECT_NAME})
 
 
@@ -84,56 +96,3 @@ if(WIN32)
 endif()
 
 include(CPack)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# download all submodules
-# find_package(Git QUIET)
-# if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
-#     option(GIT_SUBMODULE "Checkout submodules during configure" ON)
-#     if(GIT_SUBMODULE)
-#         execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
-#                         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-#                         RESULT_VARIABLE GIT_SUBMOD_RESULT)
-#         if(NOT GIT_SUBMOD_RESULT EQUAL 0)
-#             message(FATAL_ERROR "git submodule update --init failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
-#         endif()
-#     endif()
-# endif()
-
-# check for required submodules
-# if(NOT EXISTS "${PROJECT_SOURCE_DIR}/external/SDL/CMakeLists.txt")
-#     message(FATAL_ERROR "The SDL submodule was not downloaded. GIT_SUBMODULE was turned off or failed.")
-# endif()
