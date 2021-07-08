@@ -37,7 +37,7 @@ endif()
 list(APPEND BINARIES SDL2_image png zlib)
 
 
-# set shared lib output directory to match executable
+# set shared lib output directories to match executable
 set_target_properties(${BINARIES} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 
