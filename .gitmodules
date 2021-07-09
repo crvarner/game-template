@@ -4,3 +4,6 @@
 [submodule "external/SDL_image_fork"]
 	path = external/SDL_image_fork
 	url = git@github.com:crvarner/SDL_image.git
+[submodule "external/SDL_image"]
+	path = external/SDL_image
+	url = git@github.com:libsdl-org/SDL_image.git
