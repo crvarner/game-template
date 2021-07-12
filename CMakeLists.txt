@@ -43,10 +43,6 @@ set(SUPPORT_JPG OFF CACHE BOOL "enable jpeg support in SDL_image" FORCE)
 add_subdirectory(external/SDL_image EXCLUDE_FROM_ALL)
 target_include_directories(${PROJECT_NAME} PRIVATE external/SDL_image)
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL2_image)
-if(WIN32)
-    target_compile_definitions(SDL2_image
-        PRIVATE "DLL_EXPORT")
-endif()
 list(APPEND BINARIES SDL2_image png zlib)
 
 
@@ -57,6 +53,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${LUA_INCLUDE_DIR})
 message(STATUS ${LUA_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE liblua-shared)
 if(APPLE)
+    # fixed in luaJIT 2.1, but it has no cmake build (need to look into other options)
     target_link_options(${PROJECT_NAME}
         PRIVATE "-pagezero_size 10000 -image_base 100000000")
 endif()
