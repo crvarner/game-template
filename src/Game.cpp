@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "SDL_image.h"
+#include "lua.hpp"
 
 #include "Game.hpp"
 #include "TextureManager.hpp"
@@ -11,11 +12,19 @@ SDL_Texture* playerTex;
 SDL_Rect srcRect, dstRect;
 Map* map;
 
+int world (lua_State *L) {
+    const char *in = lua_tostring(L, 1);
+    char out[32];
+    sprintf(out, "c++(%s)\n", in);
+    lua_pushstring(L, out);
+    return 1;
+}
+
 void Game::init(const char* title, int x, int y, int w, int h, bool fullscreen)
 {
-    int flags = 0;
+    int flags = SDL_WINDOW_HIDDEN;
     if (fullscreen) {
-        flags = SDL_WINDOW_FULLSCREEN;
+        flags |= SDL_WINDOW_FULLSCREEN;
     }
 
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -35,12 +44,32 @@ void Game::init(const char* title, int x, int y, int w, int h, bool fullscreen)
         return;
     }
     SDL_SetRenderDrawColor(Game::renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+    SDL_ShowWindow(window);
 
     int IMG_TYPES = IMG_INIT_PNG;
     if (IMG_Init(IMG_TYPES) != IMG_TYPES) {
         std::cout << "IMG_Init failed" << std::endl;
         return;
     }
+
+    lua_State *L = luaL_newstate();
+    luaL_openlibs(L);
+    if (luaL_loadfile(L, "scripts/main.lua")) {
+        std::cout << "failed to load lua script: " << lua_tostring(L, -1) << std::endl;
+        return;
+    }
+
+    if (lua_pcall(L, 0, 0, 0)) {
+        std::cout << "failed to call lua script: " << lua_tostring(L, -1) << std::endl;
+        return;
+    }
+
+    lua_register(L, "world", world);
+    lua_getglobal(L, "hello");
+    lua_pushstring(L, "ARG");
+    lua_pcall(L, 1, 1, 0);
+    const char *out = lua_tostring(L, 1);
+    std::cout << "out: " << out << std::endl;
 
     count = 0;
     srcRect.x = srcRect.y = 0;

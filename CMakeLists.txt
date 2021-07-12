@@ -50,6 +50,15 @@ endif()
 list(APPEND BINARIES SDL2_image png zlib)
 
 
+# LuaJIT
+add_subdirectory(external/LuaJIT-cmake EXCLUDE_FROM_ALL)
+get_target_property(LUA_INCLUDE_DIR liblua-shared INCLUDE_DIRECTORIES)
+target_include_directories(${PROJECT_NAME} PRIVATE ${LUA_INCLUDE_DIR})
+message(STATUS ${LUA_INCLUDE_DIR})
+target_link_libraries(${PROJECT_NAME} PRIVATE liblua-shared)
+list(APPEND BINARIES liblua-shared)
+
+
 # set shared lib output directories to match executable
 set_target_properties(${BINARIES} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
@@ -61,6 +70,14 @@ add_custom_target(copy_assets
     "${CMAKE_CURRENT_SOURCE_DIR}/assets"
     "${CMAKE_BINARY_DIR}/assets")
 add_dependencies(${PROJECT_NAME} copy_assets)
+
+
+# copy asset dir to build dir
+add_custom_target(copy_scripts
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    "${CMAKE_CURRENT_SOURCE_DIR}/scripts"
+    "${CMAKE_BINARY_DIR}/scripts")
+add_dependencies(${PROJECT_NAME} copy_scripts)
 
 
 #installation

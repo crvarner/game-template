@@ -1,4 +1,14 @@
+#if defined(_WIN32) && defined(_DEBUG)
 #include <iostream>
+#include "windows.h"
+void init_logging() {
+    AllocConsole();
+    freopen("CONOUT$", "w", stdout);
+    freopen("CONOUT$", "w", stderr);
+}
+#else
+void init_logging() {}
+#endif
 
 #include "Game.hpp"
 
@@ -7,6 +17,7 @@ Game *game = nullptr;
 const float TICK_LENGTH = 1.0/60.0;
 
 int main(int argc, char** argv) {
+    init_logging();
     game = new Game();
     game->init("Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 640, false);
 
