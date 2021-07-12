@@ -1,4 +1,5 @@
+require "scripts.sibling"
 
 function hello(arg)
-    return world("lua(" .. arg .. ")")
+    return from_sibling(arg)
 end

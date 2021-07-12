@@ -56,6 +56,10 @@ get_target_property(LUA_INCLUDE_DIR liblua-shared INCLUDE_DIRECTORIES)
 target_include_directories(${PROJECT_NAME} PRIVATE ${LUA_INCLUDE_DIR})
 message(STATUS ${LUA_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE liblua-shared)
+if(APPLE)
+    target_link_options(${PROJECT_NAME}
+        PRIVATE "-pagezero_size 10000 -image_base 100000000")
+endif()
 list(APPEND BINARIES liblua-shared)
 
 

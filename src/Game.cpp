@@ -12,7 +12,7 @@ SDL_Texture* playerTex;
 SDL_Rect srcRect, dstRect;
 Map* map;
 
-int world (lua_State *L) {
+static int world (lua_State *L) {
     const char *in = lua_tostring(L, 1);
     char out[32];
     sprintf(out, "c++(%s)\n", in);
