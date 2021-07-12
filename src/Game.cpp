@@ -18,29 +18,28 @@ void Game::init(const char* title, int x, int y, int w, int h, bool fullscreen)
         flags = SDL_WINDOW_FULLSCREEN;
     }
 
-    if(SDL_Init(SDL_INIT_EVERYTHING) == 0) {
-        std::cout << "Subsystem Initializing!..." << std::endl;
+    if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
+        std::cout << SDL_GetError() << std::endl;
+        return;
+    }
 
-        window = SDL_CreateWindow(title, x, y, w, h, flags);
-        if (!window) {
-            std::cout << "Window not created!" << std::endl;
-            return;
-        }
+    window = SDL_CreateWindow(title, x, y, w, h, flags);
+    if (!window) {
+        std::cout << "Window not created!" << std::endl;
+        return;
+    }
 
-        Game::renderer = SDL_CreateRenderer(window, -1, 0);
-        if (!Game::renderer) {
-            std::cout << "Renderer not created!" << std::endl;
-            return;
-        }
-        SDL_SetRenderDrawColor(Game::renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
+    Game::renderer = SDL_CreateRenderer(window, -1, 0);
+    if (!Game::renderer) {
+        std::cout << "Renderer not created!" << std::endl;
+        return;
+    }
+    SDL_SetRenderDrawColor(Game::renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 
-        int IMG_TYPES = IMG_INIT_PNG;
-        if (IMG_Init(IMG_TYPES) != IMG_TYPES) {
-            std::cout << "IMG_Init failed" << std::endl;
-            return;
-        }
-
-        isRunning = true;
+    int IMG_TYPES = IMG_INIT_PNG;
+    if (IMG_Init(IMG_TYPES) != IMG_TYPES) {
+        std::cout << "IMG_Init failed" << std::endl;
+        return;
     }
 
     count = 0;
@@ -48,6 +47,7 @@ void Game::init(const char* title, int x, int y, int w, int h, bool fullscreen)
     srcRect.w = srcRect.h = 64;
     playerTex = TextureManager::LoadTexture("assets/player.png");
     map = new Map();
+    isRunning = true;
 }
 
 void Game::handleEvents()

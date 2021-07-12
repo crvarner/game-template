@@ -38,6 +38,8 @@ list(APPEND BINARIES SDL2)
 # SDL_image
 # disable jpeg support since windows build doesn't work with CMake (do symbols exported)
 set(SUPPORT_JPG OFF CACHE BOOL "enable jpeg support in SDL_image" FORCE)
+# add_subdirectory(external/SDL_image_fork EXCLUDE_FROM_ALL)
+# target_include_directories(${PROJECT_NAME} PRIVATE external/SDL_image_fork)
 add_subdirectory(external/SDL_image EXCLUDE_FROM_ALL)
 target_include_directories(${PROJECT_NAME} PRIVATE external/SDL_image)
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL2_image)
