@@ -2,6 +2,8 @@
 
 #include "SDL.h"
 
+#include "GameState/GameState.hpp"
+
 class Game {
 public:
     Game() {};
@@ -9,14 +11,19 @@ public:
 
     void init(const char* title, int x, int y, int width, int height, bool fullscreen);
     void handleEvents();
-    void update();
+    void update(float dt);
     void render(float lag);
     void clean();
     bool running();
+    static void SetState(GameState *newState);
+
     static SDL_Renderer *renderer;
 
 private:
     int count;
     bool isRunning;
     SDL_Window *window;
+
+    static GameState *gameState;
+    static GameState *nextState;
 };

@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
 
         game->handleEvents();
         while (lag >= TICK_LENGTH) {
-            game->update();
+            game->update(TICK_LENGTH);
             lag -= TICK_LENGTH;
         }
 

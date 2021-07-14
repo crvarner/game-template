@@ -7,18 +7,29 @@
 #include "TextureManager.hpp"
 #include "Map.hpp"
 
-SDL_Renderer* Game::renderer = nullptr;
-SDL_Texture* playerTex;
-SDL_Rect srcRect, dstRect;
-Map* map;
+// static int world (lua_State *L) {
+//     const char *in = lua_tostring(L, 1);
+//     char out[32];
+//     sprintf(out, "c++(%s)\n", in);
+//     lua_pushstring(L, out);
+//     return 1;
+// }
+// lua_register(L, "world", world);
+// lua_getglobal(L, "hello");
+// lua_pushstring(L, "ARG");
+// lua_pcall(L, 1, 1, 0);
+// const char *out = lua_tostring(L, 1);
+// std::cout << "out: " << out << std::endl;
 
-static int world (lua_State *L) {
-    const char *in = lua_tostring(L, 1);
-    char out[32];
-    sprintf(out, "c++(%s)\n", in);
-    lua_pushstring(L, out);
-    return 1;
-}
+// count = 0;
+// srcRect.x = srcRect.y = 0;
+// srcRect.w = srcRect.h = 64;
+// playerTex = TextureManager::LoadTexture("assets/player.png");
+// map = new Map();
+
+SDL_Renderer* Game::renderer = nullptr;
+GameState *Game::gameState = nullptr;
+GameState *Game::nextState = nullptr;
 
 void Game::init(const char* title, int x, int y, int w, int h, bool fullscreen)
 {
@@ -64,18 +75,7 @@ void Game::init(const char* title, int x, int y, int w, int h, bool fullscreen)
         return;
     }
 
-    lua_register(L, "world", world);
-    lua_getglobal(L, "hello");
-    lua_pushstring(L, "ARG");
-    lua_pcall(L, 1, 1, 0);
-    const char *out = lua_tostring(L, 1);
-    std::cout << "out: " << out << std::endl;
-
-    count = 0;
-    srcRect.x = srcRect.y = 0;
-    srcRect.w = srcRect.h = 64;
-    playerTex = TextureManager::LoadTexture("assets/player.png");
-    map = new Map();
+    gameState = new IntroState();
     isRunning = true;
 }
 
@@ -89,22 +89,37 @@ void Game::handleEvents()
             isRunning = false;
             break;
 
+        case SDL_KEYDOWN:
+            break;
+
+        case SDL_KEYUP:
+            break;
+
         default:
             break;
     }
 }
 
-void Game::update()
+void Game::SetState(GameState *newState)
 {
-    dstRect.x = dstRect.y = count++;
-    dstRect.w = dstRect.h = 64;
+    if (!nextState) {
+        nextState = newState;
+    }
+}
+
+void Game::update(float dt)
+{
+    if (nextState) {
+        gameState = nextState;
+        nextState = nullptr;
+    }
+    gameState->update(dt);
 }
 
 void Game::render(float lag)
 {
     SDL_RenderClear(Game::renderer);
-    map->DrawMap();
-    TextureManager::Draw(playerTex, srcRect, dstRect);
+    gameState->render(lag);
     SDL_RenderPresent(Game::renderer);
 }
 
