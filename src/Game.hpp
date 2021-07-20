@@ -2,6 +2,7 @@
 
 #include "SDL.h"
 
+#include "ECS.hpp"
 #include "GameState/GameState.hpp"
 
 class Game {
@@ -17,6 +18,7 @@ public:
     bool running();
     static void SetState(GameState *newState);
 
+    static EntityManager *manager;
     static SDL_Renderer *renderer;
 
 private:

@@ -1,11 +1,14 @@
 #include <iostream>
+#include <map>
 
 #include "SDL_image.h"
 #include "lua.hpp"
 
 #include "Game.hpp"
 #include "TextureManager.hpp"
-#include "Map.hpp"
+
+#include "ECS.hpp"
+#include "Components/Components.hpp"
 
 // static int world (lua_State *L) {
 //     const char *in = lua_tostring(L, 1);
@@ -27,9 +30,70 @@
 // playerTex = TextureManager::LoadTexture("assets/player.png");
 // map = new Map();
 
+EntityManager *Game::manager = new EntityManager();
 SDL_Renderer* Game::renderer = nullptr;
 GameState *Game::gameState = nullptr;
 GameState *Game::nextState = nullptr;
+
+static void dumpstack (lua_State *L) {
+    printf("================= DUMP =================\n");
+    int top=lua_gettop(L);
+    for (int i=1; i <= top; i++) {
+        printf("%d\t%s\t", i, luaL_typename(L,i));
+        switch (lua_type(L, i)) {
+
+        case LUA_TNUMBER:
+            printf("%g\n",lua_tonumber(L,i));
+            break;
+        
+        case LUA_TSTRING:
+            printf("%s\n",lua_tostring(L,i));
+            break;
+        
+        case LUA_TBOOLEAN:
+            printf("%s\n", (lua_toboolean(L, i) ? "true" : "false"));
+            break;
+        
+        case LUA_TNIL:
+            printf("%s\n", "nil");
+            break;
+        
+        default:
+            printf("%p\n",lua_topointer(L,i));
+            break;
+        }
+    }
+}
+
+static int createEntity(lua_State *L) {
+    Entity *entity = new Entity();
+    lua_settop(L, 1);
+    lua_pushnil(L);
+    dumpstack(L);
+    while (lua_next(L, 1))
+    {
+        std::string type = lua_tostring(L, 2);
+        //getLuaConstructor(type)(L);
+
+
+        switch (strToComponentType(type)) {
+            case IDLE:
+                break;
+
+            case POSITION:
+                break;
+
+            case SPRITE:
+                break;
+
+            case UNKNOWN:
+                break;
+        }
+        lua_pop(L, 1);
+    }
+    Game::manager->addEntity(entity);
+    return 0;
+}
 
 void Game::init(const char* title, int x, int y, int w, int h, bool fullscreen)
 {
@@ -75,7 +139,18 @@ void Game::init(const char* title, int x, int y, int w, int h, bool fullscreen)
         return;
     }
 
+    lua_register(L, "createEntity", createEntity);
+    lua_getglobal(L, "init");
+    lua_pcall(L, 0, 0, 0);
+
     gameState = new IntroState();
+
+    // Entity *player = new Entity();
+    // Game::manager->addEntity(player);
+    // player->addComponent<Sprite>("assets/player.png");
+    // player->addComponent<Position>(100, 100, 100, 100);
+    // player->addComponent<Idle>();
+
     isRunning = true;
 }
 
@@ -118,8 +193,10 @@ void Game::update(float dt)
 
 void Game::render(float lag)
 {
+
     SDL_RenderClear(Game::renderer);
-    gameState->render(lag);
+    // gameState->render(lag);
+    Game::manager->render(lag);
     SDL_RenderPresent(Game::renderer);
 }
 

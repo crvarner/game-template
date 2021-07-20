@@ -51,7 +51,6 @@ list(APPEND BINARIES SDL2_image png zlib)
 add_subdirectory(external/LuaJIT-cmake EXCLUDE_FROM_ALL)
 get_target_property(LUA_INCLUDE_DIR liblua-shared INCLUDE_DIRECTORIES)
 target_include_directories(${PROJECT_NAME} PRIVATE ${LUA_INCLUDE_DIR})
-message(STATUS ${LUA_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE liblua-shared)
 if(APPLE)
     # says it was fixed in LuaJIT 2.1, but it doesn't work without it?
